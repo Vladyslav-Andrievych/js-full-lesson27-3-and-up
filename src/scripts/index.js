@@ -1,19 +1,37 @@
-import { renderTasks } from "./renderTasks.js";
-import { onCreateTask } from "./createTask.js";
-import { onClickCkeckbox } from "./upDateTask.js";
+export const addImage = (imgSrc) => {
+  const p = new Promise((resolve, reject) => {
+    const imgElem = document.createElement('img');
+    imgElem.setAttribute('alt', 'My photo');
+    imgElem.src = imgSrc;
 
-document.addEventListener('DOMContentLoaded', () => {
-  renderTasks();
+    const container = document.querySelector('.page');
+    container.append(imgElem);
 
-  const createTaskElem = document.querySelector('.create-task-btn');
-  createTaskElem.addEventListener('click', onCreateTask);
+    const onImageLoad = () => {
+      const { width, height } = imgElem;
+      resolve({ width, height });
+    };
 
-  const listElem = document.querySelector('.list');
-  listElem.addEventListener('click', onClickCkeckbox);
-});
+    const onImageErrorLoad = () => {
+      reject(new Error('Image load is failed...'));
+    }
 
-const onStorageChange = () => {
-  renderTasks();
+    imgElem.addEventListener('load', onImageLoad);
+    imgElem.addEventListener('error', onImageErrorLoad);
+  })
+
+  return p;
 };
 
-window.addEventListener('storage', onStorageChange);
+const promiseObj = addImage('https://p.bigstockphoto.com/GeFvQkBbSLaMdpKXF1Zv_bigstock-Aerial-View-Of-Blue-Lakes-And--227291596.jpg');
+
+const onPromiseResolved = ({ width, height }) => {
+  const imageSizeElem = document.querySelector('.image-size');
+  imageSizeElem.textContent = `${width} x ${height}`;
+};
+
+const onPromiseRejected = (error) => {
+  console.log(error);
+};
+
+promiseObj.then(onPromiseResolved, onPromiseRejected);
