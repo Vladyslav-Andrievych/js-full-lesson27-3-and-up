@@ -1,37 +1,29 @@
-export const addImage = (imgSrc) => {
-  const p = new Promise((resolve, reject) => {
-    const imgElem = document.createElement('img');
-    imgElem.setAttribute('alt', 'My photo');
-    imgElem.src = imgSrc;
+const buttonElem = document.querySelector('.name-form__btn');
 
-    const container = document.querySelector('.page');
-    container.append(imgElem);
-
-    const onImageLoad = () => {
-      const { width, height } = imgElem;
-      resolve({ width, height });
-    };
-
-    const onImageErrorLoad = () => {
-      reject(new Error('Image load is failed...'));
-    }
-
-    imgElem.addEventListener('load', onImageLoad);
-    imgElem.addEventListener('error', onImageErrorLoad);
-  })
-
-  return p;
+const getUserData = (userName) => {
+  return fetch(`https://api.github.com/users/${userName}`)
+    .then(response => response.json());
 };
 
-const promiseObj = addImage('https://p.bigstockphoto.com/GeFvQkBbSLaMdpKXF1Zv_bigstock-Aerial-View-Of-Blue-Lakes-And--227291596.jpg');
+const renderUserData = (userData) => {
+  const userAvatarElem = document.querySelector('.user__avatar');
+  const userNameElem = document.querySelector('.user__name');
+  const userLocationElem = document.querySelector('.user__location');
 
-const onPromiseResolved = ({ width, height }) => {
-  const imageSizeElem = document.querySelector('.image-size');
-  imageSizeElem.textContent = `${width} x ${height}`;
+  const { avatar_url, name, location } = userData;
+
+  userNameElem.textContent = name;
+  userLocationElem.textContent = location;
+  userAvatarElem.src = avatar_url;
 };
 
-const onPromiseRejected = (error) => {
-  console.log(error);
+const onSearchClick = () => {
+  const inputElem = document.querySelector('.name-form__input');
+
+  const userName = inputElem.value;
+
+  getUserData(userName)
+    .then(userData => renderUserData(userData));
 };
 
-promiseObj.then(onPromiseResolved, onPromiseRejected);
+buttonElem.addEventListener('click', onSearchClick);
